@@ -12,6 +12,9 @@ jobs:
   python-tests:
     name: Python Unit Tests
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: graphql
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,7 +24,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: "pip"
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: graphql/requirements.txt
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
@@ -44,6 +47,7 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
+          cache-dependency-path: hellocucumber/package-lock.json
 
       - name: Install Node dependencies
         run: npm ci
@@ -54,6 +58,9 @@ jobs:
   lint:
     name: Python Lint
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: graphql
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -62,7 +69,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
 
       - name: Install flake8
         run: pip install flake8
