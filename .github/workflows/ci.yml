@@ -24,7 +24,9 @@ jobs:
           pwd
           ls -la
           echo "Graphql dir:"
-          ls -la graphql
+          ls -la graphql || true
+          echo "Tree (maxdepth 3):"
+          find . -maxdepth 3 -type d -print
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,7 +34,14 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python dependencies
-        run: pip install -r graphql/requirements.txt
+        run: |
+          if [ -f graphql/requirements.txt ]; then
+            echo "Found graphql/requirements.txt"
+            pip install -r graphql/requirements.txt
+          else
+            echo "requirements.txt not found. Current dir and tree:" && pwd && ls -la && find . -maxdepth 3 -print
+            exit 1
+          fi
 
       - name: Run unit tests
         working-directory: graphql
@@ -95,5 +104,10 @@ jobs:
 
       - name: Lint graphql services
         run: |
-          flake8 graphql/learning_content_service graphql/study_path_service \
-            --count --select=E9,F63,F7,F82 --show-source --statistics
+          if [ -d graphql/learning_content_service ] && [ -d graphql/study_path_service ]; then
+            flake8 graphql/learning_content_service graphql/study_path_service \
+              --count --select=E9,F63,F7,F82 --show-source --statistics
+          else
+            echo "Graphql target dirs not found. Current dir and tree:" && pwd && ls -la && find . -maxdepth 3 -type d -print
+            exit 1
+          fi
