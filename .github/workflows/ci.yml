@@ -8,25 +8,24 @@ on:
 
 permissions: read-all
 
+# This workflow demonstrates a simple CI pipeline for the workshop:
+# - Run Python unit tests for the study-path service under graphql/
+# - Run BDD tests with Cucumber-JS under hellocucumber/
+# - Run a lightweight Python linter (flake8) on the graphql services
+
 jobs:
   python-tests:
     name: Python Unit Tests
     runs-on: ubuntu-latest
+    # Run Python commands inside the graphql folder where requirements and tests live
+    defaults:
+      run:
+        working-directory: graphql
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Show working directory
-        run: |
-          echo "Repo root:"
-          pwd
-          ls -la
-          echo "Graphql dir:"
-          ls -la graphql || true
-          echo "Tree (maxdepth 3):"
-          find . -maxdepth 3 -type d -print
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,80 +33,57 @@ jobs:
           python-version: "3.11"
 
       - name: Install Python dependencies
-        run: |
-          if [ -f graphql/requirements.txt ]; then
-            echo "Found graphql/requirements.txt"
-            pip install -r graphql/requirements.txt
-          else
-            echo "requirements.txt not found. Current dir and tree:" && pwd && ls -la && find . -maxdepth 3 -print
-            exit 1
-          fi
+        run: pip install -r requirements.txt
 
-      - name: Run unit tests
-        working-directory: graphql
+      - name: Run unit tests (unittest)
         run: python -m unittest study_path_service.test_path_generator -v
 
   cucumber-tests:
     name: BDD (Cucumber-JS)
     runs-on: ubuntu-latest
+    # Run Node commands inside the hellocucumber folder where package.json lives
+    defaults:
+      run:
+        working-directory: hellocucumber
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Show working directory
-        run: |
-          echo "Repo root:"
-          pwd
-          ls -la
-          echo "hellocucumber dir:"
-          ls -la hellocucumber
-
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
       - name: Install Node dependencies
-        working-directory: hellocucumber
-        run: npm install
+        run: npm install # using npm install for simplicity in the workshop
 
-      - name: Run BDD tests
-        working-directory: hellocucumber
+      - name: Run BDD tests (Cucumber-JS)
         run: npm test
 
   lint:
     name: Python Lint
     runs-on: ubuntu-latest
+    # Lint the Python services under graphql/
+    defaults:
+      run:
+        working-directory: graphql
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Show working directory
-        run: |
-          echo "Repo root:"
-          pwd
-          ls -la
-          echo "Graphql dir:"
-          ls -la graphql
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install flake8
+      - name: Install flake8 linter
         run: pip install flake8
 
-      - name: Lint graphql services
+      - name: Run flake8 (errors only)
         run: |
-          if [ -d graphql/learning_content_service ] && [ -d graphql/study_path_service ]; then
-            flake8 graphql/learning_content_service graphql/study_path_service \
-              --count --select=E9,F63,F7,F82 --show-source --statistics
-          else
-            echo "Graphql target dirs not found. Current dir and tree:" && pwd && ls -la && find . -maxdepth 3 -type d -print
-            exit 1
-          fi
+          flake8 learning_content_service study_path_service \
+            --count --select=E9,F63,F7,F82 --show-source --statistics
