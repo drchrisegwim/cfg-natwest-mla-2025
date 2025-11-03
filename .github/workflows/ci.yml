@@ -18,13 +18,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show working directory
+        run: |
+          pwd
+          ls -la
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: graphql/requirements.txt
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
@@ -41,16 +46,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show working directory
+        run: |
+          pwd
+          ls -la
 
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-          cache-dependency-path: hellocucumber/package-lock.json
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run BDD tests
         run: npm test
@@ -64,6 +74,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show working directory
+        run: |
+          pwd
+          ls -la
 
       - name: Set up Python
         uses: actions/setup-python@v5
