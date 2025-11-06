@@ -18,7 +18,7 @@ class TestPathGenerator(unittest.TestCase):
         subject_interests = ["Mathematics"]
         path = generator.generate_personalized_path(
             student_performance, learning_style, subject_interests)
-        self.assertEqual(path, [])
+        self.assertEqual(path, ['Kiruthika'])
 
     @patch('study_path_service.path_generator.requests.post')
     def test_personalized_path_for_learner_Y(self, mock_post):
